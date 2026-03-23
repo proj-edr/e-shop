@@ -178,7 +178,7 @@ function initProductPage() {
   const product = CANDY_PRODUCTS.find((item) => item.id === productId);
 
   if (!product) {
-    details.innerHTML = "<p>Product was not found.</p>";
+    details.innerHTML = "<p>Product not found.</p>";
     return;
   }
 
