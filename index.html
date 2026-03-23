@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Candy Corner | Sweet Deals Every Day</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="index.html">Candy Corner</a>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="checkout.html">Checkout</a>
+        </nav>
+        <a class="cart-pill" href="checkout.html">Cart <span id="cart-count">0</span></a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <h1>Find Your Favorite Candy</h1>
+          <p>Shop chocolates, gummies, sour treats, and more.</p>
+          <div class="search-wrap">
+            <input id="search-input" type="search" placeholder="Search candy products..." />
+          </div>
+        </div>
+      </section>
+
+      <section class="container section">
+        <h2>Popular Products</h2>
+        <p class="muted">Click any product to open its product page.</p>
+        <div id="category-filters" class="category-filters"></div>
+        <div id="product-grid" class="product-grid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>&copy; 2026 Candy Corner. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

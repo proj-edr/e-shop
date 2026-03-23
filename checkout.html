@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Candy Corner | Checkout</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="checkout">
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="index.html">Candy Corner</a>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="checkout.html">Checkout</a>
+        </nav>
+        <a class="cart-pill" href="checkout.html">Cart <span id="cart-count">0</span></a>
+      </div>
+    </header>
+
+    <main class="container section">
+      <h1>Checkout</h1>
+      <div class="checkout-layout">
+        <section>
+          <h2>Your Cart</h2>
+          <div id="checkout-items" class="checkout-items"></div>
+          <form id="checkout-form" class="checkout-form">
+            <h2>Shipping Details</h2>
+            <div class="form-grid">
+              <label>
+                Full Name
+                <input type="text" name="fullName" required />
+              </label>
+              <label>
+                Email
+                <input type="email" name="email" required />
+              </label>
+              <label class="span-2">
+                Street Address
+                <input type="text" name="address" required />
+              </label>
+              <label>
+                City
+                <input type="text" name="city" required />
+              </label>
+              <label>
+                ZIP Code
+                <input type="text" name="zip" required />
+              </label>
+            </div>
+
+            <h2>Payment</h2>
+            <div class="form-grid">
+              <label class="span-2">
+                Card Number
+                <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" required />
+              </label>
+              <label>
+                Expiry
+                <input type="text" name="expiry" placeholder="MM/YY" required />
+              </label>
+              <label>
+                CVV
+                <input type="text" name="cvv" required />
+              </label>
+            </div>
+          </form>
+        </section>
+        <aside class="checkout-summary">
+          <h2>Order Summary</h2>
+          <p>Subtotal: <strong id="subtotal">$0.00</strong></p>
+          <p>Shipping: <strong>$4.99</strong></p>
+          <p>Total: <strong id="total">$4.99</strong></p>
+          <button id="place-order" class="btn-primary">Place Order</button>
+          <p id="checkout-message" class="success-text"></p>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>&copy; 2026 Candy Corner. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
