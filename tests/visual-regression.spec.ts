@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const VIEWPORT = { width: 1440, height: 900 };
+const PRODUCT_CLIP = { x: 170, y: 120, width: 1100, height: 760 };
 
 test.describe("Candy Corner visual regression", () => {
   test.beforeEach(async ({ page }) => {
@@ -31,7 +32,8 @@ test.describe("Candy Corner visual regression", () => {
     await page.goto("/product.html?id=classic-chocolate-bites");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator(".product-layout")).toHaveScreenshot("product-page.png", {
+    await expect(page).toHaveScreenshot("product-page.png", {
+      clip: PRODUCT_CLIP,
       maxDiffPixelRatio: 0.01
     });
   });
