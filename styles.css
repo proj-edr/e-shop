@@ -180,6 +180,7 @@ body {
 .product-layout {
   display: grid;
   grid-template-columns: minmax(270px, 430px) 1fr;
+  column-gap: 24px;
 }
 
 .product-info {
