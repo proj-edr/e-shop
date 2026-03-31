@@ -97,7 +97,7 @@ body {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin: 13px 0 20px;
+  margin: 14px 0 20px;
 }
 
 .chip-btn {
