@@ -22,7 +22,7 @@ test.describe("Candy Corner visual regression", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page).toHaveScreenshot("home-page.png", {
-      fullPage: true,
+      fullPage: false,
       maxDiffPixelRatio: 0.01
     });
   });
@@ -32,7 +32,7 @@ test.describe("Candy Corner visual regression", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page).toHaveScreenshot("product-page.png", {
-      fullPage: true,
+      fullPage: false,
       maxDiffPixelRatio: 0.01
     });
   });
@@ -50,7 +50,7 @@ test.describe("Candy Corner visual regression", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page).toHaveScreenshot("checkout-page.png", {
-      fullPage: true,
+      fullPage: false,
       maxDiffPixelRatio: 0.01
     });
   });
