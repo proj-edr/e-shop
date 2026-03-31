@@ -34,7 +34,7 @@ test.describe("Candy Corner visual regression", () => {
 
     await expect(page).toHaveScreenshot("product-page.png", {
       clip: PRODUCT_CLIP,
-      maxDiffPixelRatio: 0.01
+      maxDiffPixels: 100
     });
   });
 
