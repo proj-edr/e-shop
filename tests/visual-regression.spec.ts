@@ -55,4 +55,3 @@ test.describe("Candy Corner visual regression", () => {
     });
   });
 });
-// comment

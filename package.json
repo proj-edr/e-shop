@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "playwright test",
-    "test:ci": "playwright test --project=chromium"
+    "test:ci": "playwright test --project=chromium",
+    "report": "playwright show-report"
   },
   "keywords": [],
   "author": "",

@@ -6,6 +6,12 @@ module.exports = defineConfig({
   testDir: "./tests",
   fullyParallel: false,
   timeout: 60000,
+  snapshotPathTemplate:
+    "{testDir}/{testFilePath}-snapshots/{arg}-{projectName}{ext}",
+  reporter: [
+    ["list"],
+    ["html", { open: "never", outputFolder: "playwright-report" }]
+  ],
   expect: {
     timeout: 10000
   },
