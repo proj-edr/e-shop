@@ -6,6 +6,10 @@ module.exports = defineConfig({
   testDir: "./tests",
   fullyParallel: false,
   timeout: 60000,
+  reporter: [
+    ["list"],
+    ["html", { open: "never", outputFolder: "playwright-report" }]
+  ],
   expect: {
     timeout: 10000
   },
