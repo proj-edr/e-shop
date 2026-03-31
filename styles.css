@@ -179,7 +179,7 @@ body {
 
 .product-layout {
   display: grid;
-  grid-template-columns: minmax(251px, 430px) 1fr;
+  grid-template-columns: minmax(270px, 430px) 1fr;
 }
 
 .product-info {
