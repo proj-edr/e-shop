@@ -57,7 +57,7 @@ jobs:
         run: |
           REPORT_DIR='run-${{ github.run_id }}-${{ github.run_attempt }}'
           azcopy cp --recursive "./playwright-report/*" "https://testreportci.blob.core.windows.net/\$web/$REPORT_DIR"
-          echo "::notice title=HTML report url::https://testreportci.z1.web.core.windows.net/$REPORT_DIR/index.html"
+          echo "::notice title=Visual regression HTML report url::https://testreportci.z1.web.core.windows.net/$REPORT_DIR/index.html"
         env:
           AZCOPY_AUTO_LOGIN_TYPE: SPN
           AZCOPY_SPA_APPLICATION_ID: '${{ secrets.AZCOPY_SPA_APPLICATION_ID }}'
@@ -103,7 +103,7 @@ jobs:
         run: |
           REPORT_DIR='run-${{ github.run_id }}-${{ github.run_attempt }}'
           azcopy cp --recursive "./playwright-report/*" "https://testreportci.blob.core.windows.net/\$web/$REPORT_DIR"
-          echo "::notice title=HTML report url::https://testreportci.z1.web.core.windows.net/$REPORT_DIR/index.html"
+          echo "::notice title=Functional tests HTML report url::https://testreportci.z1.web.core.windows.net/$REPORT_DIR/index.html"
         env:
           AZCOPY_AUTO_LOGIN_TYPE: SPN
           AZCOPY_SPA_APPLICATION_ID: '${{ secrets.AZCOPY_SPA_APPLICATION_ID }}'
