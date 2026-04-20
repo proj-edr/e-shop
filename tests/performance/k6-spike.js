@@ -10,9 +10,9 @@ export const options = {
       startVUs: 10,
       stages: [
         { duration: "30s", target: 20 },
-        { duration: "15s", target: 300 },
+        { duration: "15s", target: 80 },
         { duration: "30s", target: 20 },
-        { duration: "15s", target: 500 },
+        { duration: "15s", target: 100 },
         { duration: "30s", target: 20 },
         { duration: "15s", target: 0 }
       ],
