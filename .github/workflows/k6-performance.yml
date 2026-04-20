@@ -75,11 +75,23 @@ jobs:
       - name: Add k6 cloud link to summary
         if: ${{ always() }}
         run: |
-          run_url=$(grep -Eo 'https://app\.k6\.io/runs/[0-9]+' "k6-results/${{ matrix.test_name }}.log" | head -n1 || true)
+          log_file="k6-results/${{ matrix.test_name }}.log"
+          run_url=$(grep -Eo 'https://app\.k6\.io/runs/[0-9]+' "$log_file" | head -n1 || true)
+          if [ -z "$run_url" ]; then
+            run_url=$(grep -Eo 'https://app\.grafana\.com/a/k6-app/runs/[A-Za-z0-9_-]+' "$log_file" | head -n1 || true)
+          fi
+          if [ -z "$run_url" ]; then
+            run_url=$(grep -Eo 'https://[^ ]+/runs/[A-Za-z0-9_-]+' "$log_file" | head -n1 || true)
+          fi
+
           if [ -n "$run_url" ]; then
+            echo "Discovered k6 cloud run URL: $run_url"
             echo "## k6 ${{ matrix.test_name }} test" >> "$GITHUB_STEP_SUMMARY"
             echo "- [Open run in Grafana Cloud]($run_url)" >> "$GITHUB_STEP_SUMMARY"
           else
+            echo "Could not find run URL in $log_file"
+            echo "Last lines of k6 output:"
+            tail -n 40 "$log_file" || true
             echo "## k6 ${{ matrix.test_name }} test" >> "$GITHUB_STEP_SUMMARY"
             echo "- Run URL not found in logs." >> "$GITHUB_STEP_SUMMARY"
           fi
