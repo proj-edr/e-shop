@@ -70,30 +70,49 @@ jobs:
           K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
         run: |
           mkdir -p k6-results
-          k6 cloud "${{ matrix.script }}" 2>&1 | tee "k6-results/${{ matrix.test_name }}.log"
+          log_file="k6-results/${{ matrix.test_name }}.log"
+          k6 run -o cloud "${{ matrix.script }}" 2>&1 | tee "$log_file"
+          if ! grep -qiE 'execution:\s*cloud|output:\s*cloud|app\.k6\.io|app\.grafana\.com' "$log_file"; then
+            echo "k6 did not appear to run in cloud mode. Check token/account setup."
+            tail -n 60 "$log_file" || true
+            exit 1
+          fi
 
       - name: Add k6 cloud link to summary
         if: ${{ always() }}
+        env:
+          GRAFANA_K6_RUNS_PAGE_URL: ${{ vars.GRAFANA_K6_RUNS_PAGE_URL }}
         run: |
           log_file="k6-results/${{ matrix.test_name }}.log"
-          run_url=$(grep -Eo 'https://app\.k6\.io/runs/[0-9]+' "$log_file" | head -n1 || true)
+          clean_log="k6-results/${{ matrix.test_name }}.clean.log"
+          perl -pe 's/\e\[[0-9;]*[A-Za-z]//g; s/\e]8;;[^\e]*\e\\//g; s/\e]8;;\e\\//g' "$log_file" > "$clean_log"
+          run_url=$(grep -Eo 'https://app\.k6\.io/runs/[0-9]+' "$clean_log" | head -n1 || true)
           if [ -z "$run_url" ]; then
-            run_url=$(grep -Eo 'https://app\.grafana\.com/a/k6-app/runs/[A-Za-z0-9_-]+' "$log_file" | head -n1 || true)
+            run_url=$(grep -Eo 'https://[^ ]+/a/k6-app/runs/[A-Za-z0-9_-]+' "$clean_log" | head -n1 || true)
           fi
           if [ -z "$run_url" ]; then
-            run_url=$(grep -Eo 'https://[^ ]+/runs/[A-Za-z0-9_-]+' "$log_file" | head -n1 || true)
+            run_url=$(grep -Eo 'https://[^ ]+/runs/[A-Za-z0-9_-]+' "$clean_log" | head -n1 || true)
           fi
+          if [ -z "$run_url" ]; then
+            run_id=$(grep -Eio '(run|test)[[:space:]_-]*(id|identifier)[^0-9]*[0-9]+' "$clean_log" | grep -Eo '[0-9]+' | head -n1 || true)
+            if [ -n "$run_id" ]; then
+              run_url="https://app.k6.io/runs/$run_id"
+            fi
+          fi
+          runs_page_url="${GRAFANA_K6_RUNS_PAGE_URL:-https://app.k6.io/runs}"
 
           if [ -n "$run_url" ]; then
             echo "Discovered k6 cloud run URL: $run_url"
             echo "## k6 ${{ matrix.test_name }} test" >> "$GITHUB_STEP_SUMMARY"
             echo "- [Open run in Grafana Cloud]($run_url)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- [Open all runs]($runs_page_url)" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Could not find run URL in $log_file"
             echo "Last lines of k6 output:"
-            tail -n 40 "$log_file" || true
+            tail -n 40 "$clean_log" || true
             echo "## k6 ${{ matrix.test_name }} test" >> "$GITHUB_STEP_SUMMARY"
             echo "- Run URL not found in logs." >> "$GITHUB_STEP_SUMMARY"
+            echo "- [Open all runs]($runs_page_url)" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Stop API server
