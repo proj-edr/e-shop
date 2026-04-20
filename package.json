@@ -2,8 +2,13 @@
   "name": "shop",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "api/server.js",
   "scripts": {
+    "api": "node api/server.js",
+    "k6:smoke": "k6 run tests/performance/k6-smoke.js",
+    "k6:load": "k6 run tests/performance/k6-load.js",
+    "k6:stress": "k6 run tests/performance/k6-stress.js",
+    "k6:spike": "k6 run tests/performance/k6-spike.js",
     "test": "playwright test",
     "test:ci": "playwright test --project=chromium",
     "report": "playwright show-report"
@@ -17,6 +22,9 @@
     "@types/node": "^25.5.0"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "playwright": "^1.58.2"
   }
 }
