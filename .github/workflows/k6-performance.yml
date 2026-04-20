@@ -12,6 +12,8 @@ jobs:
     name: k6 ${{ matrix.test_name }} test
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      PERF_BLOCKING: ${{ github.event_name == 'pull_request' && 'false' || 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -71,11 +73,25 @@ jobs:
         run: |
           mkdir -p k6-results
           log_file="k6-results/${{ matrix.test_name }}.log"
+          set +e
           k6 run -o cloud "${{ matrix.script }}" 2>&1 | tee "$log_file"
+          k6_exit=$?
+          set -e
+
           if ! grep -qiE 'execution:\s*cloud|output:\s*cloud|app\.k6\.io|app\.grafana\.com' "$log_file"; then
             echo "k6 did not appear to run in cloud mode. Check token/account setup."
             tail -n 60 "$log_file" || true
             exit 1
+          fi
+
+          echo "$k6_exit" > "k6-results/${{ matrix.test_name }}.exitcode"
+          if [ "$k6_exit" -ne 0 ]; then
+            if [ "$PERF_BLOCKING" = "true" ]; then
+              echo "k6 failed and PERF_BLOCKING=true, failing workflow."
+              exit "$k6_exit"
+            else
+              echo "k6 failed but PERF_BLOCKING=false, continuing (PR mode)."
+            fi
           fi
 
       - name: Add k6 cloud link to summary
@@ -84,6 +100,11 @@ jobs:
           GRAFANA_K6_RUNS_PAGE_URL: ${{ vars.GRAFANA_K6_RUNS_PAGE_URL }}
         run: |
           log_file="k6-results/${{ matrix.test_name }}.log"
+          exit_code_file="k6-results/${{ matrix.test_name }}.exitcode"
+          k6_exit_code="unknown"
+          if [ -f "$exit_code_file" ]; then
+            k6_exit_code=$(cat "$exit_code_file")
+          fi
           clean_log="k6-results/${{ matrix.test_name }}.clean.log"
           perl -pe 's/\e\[[0-9;]*[A-Za-z]//g; s/\e]8;;[^\e]*\e\\//g; s/\e]8;;\e\\//g' "$log_file" > "$clean_log"
           run_url=$(grep -Eo 'https://app\.k6\.io/runs/[0-9]+' "$clean_log" | head -n1 || true)
@@ -106,6 +127,7 @@ jobs:
             echo "## k6 ${{ matrix.test_name }} test" >> "$GITHUB_STEP_SUMMARY"
             echo "- [Open run in Grafana Cloud]($run_url)" >> "$GITHUB_STEP_SUMMARY"
             echo "- [Open all runs]($runs_page_url)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- k6 exit code: \`$k6_exit_code\` (PERF_BLOCKING=\`$PERF_BLOCKING\`)" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Could not find run URL in $log_file"
             echo "Last lines of k6 output:"
@@ -113,6 +135,7 @@ jobs:
             echo "## k6 ${{ matrix.test_name }} test" >> "$GITHUB_STEP_SUMMARY"
             echo "- Run URL not found in logs." >> "$GITHUB_STEP_SUMMARY"
             echo "- [Open all runs]($runs_page_url)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- k6 exit code: \`$k6_exit_code\` (PERF_BLOCKING=\`$PERF_BLOCKING\`)" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Stop API server
