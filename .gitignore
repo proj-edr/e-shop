@@ -2,3 +2,4 @@ node_modules/
 TEST_RESULTS.md
 playwright-report/
 test-results/
+.env

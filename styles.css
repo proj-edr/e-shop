@@ -15,7 +15,7 @@ body {
 }
 
 .site-header {
-  background: #fb7185;
+  background: #be123c;
   color: #ffffff;
   position: sticky;
   top: 0;
@@ -111,7 +111,7 @@ body {
 
 .active-chip {
   background: #f97316;
-  color: #ffffff;
+  color: #1f2937;
   border-color: #f97316;
 }
 

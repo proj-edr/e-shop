@@ -3,7 +3,7 @@ const { defineConfig, devices } = require("@playwright/test");
 const isCI = Boolean(process.env.CI);
 
 module.exports = defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/e2e",
   fullyParallel: false,
   timeout: 60000,
   snapshotPathTemplate:

@@ -1,0 +1,79 @@
+name: k6 Performance Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  k6-tests:
+    name: k6 ${{ matrix.test_name }} test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test_name: load
+            script: tests/performance/k6-load.js
+          - test_name: stress
+            script: tests/performance/k6-stress.js
+          - test_name: spike
+            script: tests/performance/k6-spike.js
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start API server
+        run: |
+          npm run api > api.log 2>&1 &
+          echo $! > api.pid
+
+      - name: Wait for API
+        run: |
+          for i in {1..30}; do
+            if curl -fsS "http://127.0.0.1:3000/api/health" > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API did not start in time"
+          cat api.log || true
+          exit 1
+
+      - name: Run k6 ${{ matrix.test_name }} test
+        run: |
+          mkdir -p k6-results
+          k6 run --summary-export "k6-results/${{ matrix.test_name }}-summary.json" "${{ matrix.script }}"
+
+      - name: Stop API server
+        if: ${{ always() }}
+        run: |
+          if [ -f api.pid ]; then
+            kill "$(cat api.pid)" || true
+          fi
+
+      - name: Upload k6 artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-${{ matrix.test_name }}-results
+          path: |
+            k6-results/
+            api.log
+          retention-days: 14
