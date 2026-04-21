@@ -7,6 +7,10 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+concurrency:
+  group: k6-performance-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   k6-tests:
     name: k6 ${{ matrix.test_name }} test
@@ -16,6 +20,7 @@ jobs:
       PERF_BLOCKING: "true"
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - test_name: load
