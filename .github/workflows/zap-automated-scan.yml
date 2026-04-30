@@ -51,6 +51,7 @@ jobs:
       - name: Run ZAP automated baseline scan
         run: |
           docker run --rm --network host \
+            --user root \
             -v "$(pwd):/zap/wrk/:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
