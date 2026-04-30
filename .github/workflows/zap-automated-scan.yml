@@ -1,0 +1,83 @@
+name: ZAP Automated Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  zap-automated-scan:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start API server
+        run: |
+          npm run api > api.log 2>&1 &
+          echo $! > api.pid
+
+      - name: Start static server
+        run: |
+          python3 -m http.server 4173 --directory . > static.log 2>&1 &
+          echo $! > static.pid
+
+      - name: Wait for servers
+        run: |
+          for i in {1..30}; do
+            if curl -fsS "http://127.0.0.1:3000/api/health" > /dev/null && curl -fsS "http://127.0.0.1:4173" > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Servers did not start in time."
+          cat api.log || true
+          cat static.log || true
+          exit 1
+
+      - name: Run ZAP automated baseline scan
+        run: |
+          docker run --rm --network host \
+            -v "$(pwd):/zap/wrk/:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+              -t http://127.0.0.1:4173 \
+              -r zap-report.html \
+              -J zap-report.json \
+              -w zap-report.md
+
+      - name: Stop servers
+        if: ${{ always() }}
+        run: |
+          if [ -f api.pid ]; then
+            kill "$(cat api.pid)" || true
+          fi
+          if [ -f static.pid ]; then
+            kill "$(cat static.pid)" || true
+          fi
+
+      - name: Upload ZAP artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-baseline-report
+          path: |
+            zap-report.html
+            zap-report.json
+            zap-report.md
+            api.log
+            static.log
+          retention-days: 14
